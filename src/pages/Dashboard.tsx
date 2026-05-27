@@ -14,7 +14,7 @@ export function Dashboard({ data }: { data: WorkspaceData }) {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-sm font-medium text-slate-500">Dashboard</p>
+        <p className="text-sm font-medium text-slate-500">首頁總覽</p>
         <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">本週專案工作台</h2>
         <p className="mt-2 text-slate-500">快速掌握待追、需協調、待確認與最近決策。</p>
       </div>

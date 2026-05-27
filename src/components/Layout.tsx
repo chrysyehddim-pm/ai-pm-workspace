@@ -1,14 +1,14 @@
 import type { ReactNode } from 'react';
 import type { PageKey, WorkspaceData } from '../types';
 
-const navItems: Array<{ key: PageKey; label: string; short: string }> = [
-  { key: 'dashboard', label: 'Dashboard', short: '首頁' },
-  { key: 'tasks', label: 'Task Center', short: '任務' },
-  { key: 'projects', label: 'Projects', short: '專案' },
-  { key: 'decisions', label: 'Decision Log', short: '紀錄' },
-  { key: 'meetings', label: 'Meeting Notes', short: '會議' },
-  { key: 'documents', label: 'Document Index', short: '文件' },
-  { key: 'reports', label: 'Reports', short: '報告' },
+const navItems: Array<{ key: PageKey; label: string; short: string; icon: string }> = [
+  { key: 'dashboard', label: '首頁總覽', short: '首頁', icon: '⌂' },
+  { key: 'tasks', label: '任務中心', short: '任務', icon: '✓' },
+  { key: 'projects', label: '專案管理', short: '專案', icon: '▦' },
+  { key: 'decisions', label: '決策紀錄', short: '紀錄', icon: '◆' },
+  { key: 'meetings', label: '會議紀錄', short: '會議', icon: '◷' },
+  { key: 'documents', label: '文件索引', short: '文件', icon: '▤' },
+  { key: 'reports', label: '報告中心', short: '報告', icon: '✦' },
 ];
 
 function countNeedAttention(data: WorkspaceData) {
@@ -38,6 +38,7 @@ export function Layout({
 }) {
   const activeTasks = data.tasks.filter((task) => task.status !== '完成').length;
   const needAttention = countNeedAttention(data);
+  const currentLabel = navItems.find((item) => item.key === currentPage)?.label || '首頁總覽';
 
   return (
     <div className="min-h-screen pb-20 lg:pb-0">
@@ -52,11 +53,12 @@ export function Layout({
           {navItems.map((item) => (
             <button
               key={item.key}
-              className={`w-full rounded-xl px-4 py-3 text-left text-sm font-medium transition ${
+              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-medium transition ${
                 currentPage === item.key ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'
               }`}
               onClick={() => setCurrentPage(item.key)}
             >
+              <span className={`grid h-7 w-7 place-items-center rounded-lg text-xs ${currentPage === item.key ? 'bg-white/15' : 'bg-slate-100 text-slate-500'}`}>{item.icon}</span>
               {item.label}
             </button>
           ))}
@@ -79,7 +81,7 @@ export function Layout({
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">AI PM Workspace</p>
-              <h1 className="text-lg font-semibold text-slate-950">{navItems.find((item) => item.key === currentPage)?.short}</h1>
+              <h1 className="text-lg font-semibold text-slate-950">{currentLabel}</h1>
             </div>
             <button className="btn-secondary py-2 text-xs" onClick={onExport}>匯出</button>
           </div>
@@ -102,7 +104,7 @@ export function Layout({
           <div className="rounded-2xl bg-slate-50 p-4">
             <p className="text-xs text-slate-500">使用建議</p>
             <p className="mt-2 text-sm leading-6 text-slate-700">
-              每次會議後先新增 Meeting Note，再將行動項目拆成 Task。週報前先檢查「需協調」與「待確認」。
+              每次會議後先新增會議紀錄，再將行動項目拆成任務。週報前先檢查「需協調」與「待確認」。
             </p>
           </div>
         </div>
@@ -117,7 +119,8 @@ export function Layout({
               className={`py-3 text-xs font-medium ${currentPage === item.key ? 'text-slate-950' : 'text-slate-400'}`}
               onClick={() => setCurrentPage(item.key)}
             >
-              {item.short}
+              <span className="block text-sm leading-none">{item.icon}</span>
+              <span className="mt-1 block">{item.short}</span>
             </button>
           ))}
       </nav>

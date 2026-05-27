@@ -1,27 +1,36 @@
-# AI PM Workspace v0.1.1 Patch
+# AI PM Workspace v0.1.2 Patch
 
-請將本壓縮檔內的檔案依照相同路徑上傳到 GitHub repo，覆蓋既有檔案。
+本次修正重點：
 
-## 這版修正
+1. 補齊可編輯能力
+   - Project 可編輯基本資料
+   - Epic 可編輯
+   - Story 可編輯
+   - Decision Log 可編輯
+   - Meeting Notes 可編輯
+   - Document Index 可編輯
 
-1. 「重置範例資料」改為「補上範例資料」，不再刪除既有資料。
-2. 匯入資料前會跳出確認，提醒匯入會覆蓋目前資料。
-3. 刪除 Project / Epic / Story / Task / Decision / Meeting / Document 前會跳出確認。
-4. Task 可只掛 Project，Epic / Story 改為選填。
-5. Project / Epic / Story 狀態與進度改為依底下 Task 自動推算。
-6. Dashboard、Projects、Reports 改用推算後的狀態與進度。
-7. 補上 src/vite-env.d.ts，避免 Vite env 型別錯誤。
+2. 介面命名一致化
+   - 側邊欄改為繁體中文
+   - 頁面標題統一繁體中文
+   - 保留 AI PM Workspace 作為產品名稱
 
-## 覆蓋檔案
+3. Report 邏輯說明
+   - 報告中心明確說明是「即時草稿產生器」
+   - 不會每日自動生成
+   - 不會自動保存歷史版本
+   - 若需保存版本，請複製後另存
 
-- src/App.tsx
-- src/types.ts
-- src/vite-env.d.ts
-- src/components/Layout.tsx
-- src/components/TaskForm.tsx
-- src/hooks/useWorkspaceData.ts
-- src/pages/Dashboard.tsx
-- src/pages/Projects.tsx
-- src/utils/projectMetrics.ts
-- src/utils/reportGenerator.ts
+4. 輕量 UI/UX 優化
+   - 側邊欄加入簡單 icon 識別
+   - 手機底部導覽加入 icon
+   - 編輯 / 刪除操作改為更明確的按鈕樣式
+   - 空資料狀態增加提示
 
+使用方式：
+請將 zip 內檔案依照相同路徑覆蓋到 GitHub repo。
+例如：
+- src/pages/Projects.tsx 覆蓋 repo 中的 src/pages/Projects.tsx
+- src/components/Layout.tsx 覆蓋 repo 中的 src/components/Layout.tsx
+
+覆蓋後 commit，GitHub Actions 會自動部署。

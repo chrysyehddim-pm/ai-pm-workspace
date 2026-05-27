@@ -45,7 +45,7 @@ export function TaskCenter({
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-sm font-medium text-slate-500">Task Center</p>
+          <p className="text-sm font-medium text-slate-500">任務中心</p>
           <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">任務中心</h2>
           <p className="mt-2 text-slate-500">集中追蹤待辦、需協調、待確認與修改項目。</p>
         </div>
