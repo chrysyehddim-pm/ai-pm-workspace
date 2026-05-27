@@ -18,7 +18,15 @@ export type TaskStatus =
 
 export type TaskTag = '需協調' | '待追蹤' | '高優先';
 export type Priority = '低' | '中' | '高';
-export type ProjectStatus = '尚未開始' | '進行中' | '需協調' | '暫緩' | '完成';
+export type ProjectStatus =
+  | '待整理'
+  | '尚未開始'
+  | '進行中'
+  | '待確認'
+  | '需修改'
+  | '需協調'
+  | '暫緩'
+  | '完成';
 export type SourceType = 'Meeting' | 'Teams' | 'Email' | 'Line' | 'Personal Note' | 'Other';
 export type DocumentType = 'PPT' | 'Excel' | 'Word' | 'PDF' | 'Image' | 'Link' | 'Other';
 export type ReportType = '週報' | '月報' | '會議摘要' | '主管摘要';
