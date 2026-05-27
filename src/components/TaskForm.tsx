@@ -20,10 +20,26 @@ export function TaskForm({
   onSave: (payload: Partial<Task>) => Promise<void>;
 }) {
   const [projectId, setProjectId] = useState(initialTask?.projectId || projects[0]?.id || '');
-  const projectEpics = useMemo(() => epics.filter((epic) => epic.projectId === projectId), [epics, projectId]);
-  const [epicId, setEpicId] = useState(initialTask?.epicId || projectEpics[0]?.id || '');
-  const projectStories = useMemo(() => stories.filter((story) => story.projectId === projectId && (!epicId || story.epicId === epicId)), [epicId, projectId, stories]);
+  const [epicId, setEpicId] = useState(initialTask?.epicId || '');
+  const [storyId, setStoryId] = useState(initialTask?.storyId || '');
   const [saving, setSaving] = useState(false);
+
+  const projectEpics = useMemo(() => epics.filter((epic) => epic.projectId === projectId), [epics, projectId]);
+  const projectStories = useMemo(
+    () => stories.filter((story) => story.projectId === projectId && (!epicId || story.epicId === epicId)),
+    [epicId, projectId, stories],
+  );
+
+  const handleProjectChange = (nextProjectId: string) => {
+    setProjectId(nextProjectId);
+    setEpicId('');
+    setStoryId('');
+  };
+
+  const handleEpicChange = (nextEpicId: string) => {
+    setEpicId(nextEpicId);
+    setStoryId('');
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -36,8 +52,8 @@ export function TaskForm({
         title: String(formData.get('title') || ''),
         description: String(formData.get('description') || ''),
         projectId,
-        epicId: String(formData.get('epicId') || ''),
-        storyId: String(formData.get('storyId') || ''),
+        epicId,
+        storyId,
         assignee: String(formData.get('assignee') || ''),
         department: String(formData.get('department') || ''),
         status: String(formData.get('status')) as TaskStatus,
@@ -54,6 +70,10 @@ export function TaskForm({
 
   return (
     <form className="card space-y-4" onSubmit={handleSubmit}>
+      <div className="rounded-2xl bg-slate-50 p-3 text-sm leading-6 text-slate-600">
+        Task 是最小追蹤單位，Project 必填；Epic / Story 可先留空，之後再補齊歸類。
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2">
         <label>
           <span className="label">任務名稱</span>
@@ -65,20 +85,20 @@ export function TaskForm({
         </label>
         <label>
           <span className="label">Project</span>
-          <select className="input" value={projectId} onChange={(event) => setProjectId(event.target.value)} required>
+          <select className="input" value={projectId} onChange={(event) => handleProjectChange(event.target.value)} required>
             {projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}
           </select>
         </label>
         <label>
-          <span className="label">Epic</span>
-          <select name="epicId" className="input" value={epicId} onChange={(event) => setEpicId(event.target.value)}>
+          <span className="label">Epic（選填）</span>
+          <select name="epicId" className="input" value={epicId} onChange={(event) => handleEpicChange(event.target.value)}>
             <option value="">未指定</option>
             {projectEpics.map((epic) => <option key={epic.id} value={epic.id}>{epic.title}</option>)}
           </select>
         </label>
         <label>
-          <span className="label">Story</span>
-          <select name="storyId" className="input" defaultValue={initialTask?.storyId || ''}>
+          <span className="label">Story（選填）</span>
+          <select name="storyId" className="input" value={storyId} onChange={(event) => setStoryId(event.target.value)}>
             <option value="">未指定</option>
             {projectStories.map((story) => <option key={story.id} value={story.id}>{story.title}</option>)}
           </select>

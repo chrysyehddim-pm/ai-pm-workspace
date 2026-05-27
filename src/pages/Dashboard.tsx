@@ -2,6 +2,7 @@ import { StatCard } from '../components/StatCard';
 import { StatusBadge, TagBadge } from '../components/StatusBadge';
 import type { WorkspaceData } from '../types';
 import { isWithinDays } from '../utils/date';
+import { getProjectSummary } from '../utils/projectMetrics';
 
 export function Dashboard({ data }: { data: WorkspaceData }) {
   const unfinished = data.tasks.filter((task) => task.status !== '完成');
@@ -84,17 +85,25 @@ export function Dashboard({ data }: { data: WorkspaceData }) {
         <section className="card">
           <h3 className="section-title">專案概況</h3>
           <div className="mt-4 space-y-3">
-            {data.projects.map((project) => (
-              <div key={project.id} className="rounded-2xl border border-slate-100 p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="font-medium text-slate-950">{project.name}</p>
-                    <p className="mt-1 line-clamp-2 text-sm text-slate-500">{project.goal}</p>
+            {data.projects.map((project) => {
+              const summary = getProjectSummary(data, project.id);
+              return (
+                <div key={project.id} className="rounded-2xl border border-slate-100 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-medium text-slate-950">{project.name}</p>
+                      <p className="mt-1 line-clamp-2 text-sm text-slate-500">{project.goal}</p>
+                      <p className="mt-2 text-xs text-slate-500">
+                        進度：{summary.completion.completed}/{summary.completion.total} 完成（{summary.completion.percent}%）
+                        {summary.attention.coordination > 0 ? `・需協調 ${summary.attention.coordination}` : ''}
+                        {summary.attention.review > 0 ? `・待確認 ${summary.attention.review}` : ''}
+                      </p>
+                    </div>
+                    <StatusBadge status={summary.status} />
                   </div>
-                  <StatusBadge status={project.status} />
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       </div>

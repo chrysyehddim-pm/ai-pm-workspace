@@ -37,7 +37,7 @@ function getCollectionPath(uid: string, collectionName: CollectionName) {
   return `users/${uid}/workspaces/${DEFAULT_WORKSPACE_ID}/${collectionName}`;
 }
 
-function withAudit<T extends { id?: string }>(payload: T, uid: string) {
+function withAudit<T extends { id?: string; createdAt?: string }>(payload: T, uid: string) {
   const now = new Date().toISOString();
   return {
     ...payload,
@@ -45,8 +45,12 @@ function withAudit<T extends { id?: string }>(payload: T, uid: string) {
     ownerUid: uid,
     workspaceId: DEFAULT_WORKSPACE_ID,
     updatedAt: now,
-    createdAt: 'createdAt' in payload && typeof payload.createdAt === 'string' ? payload.createdAt : now,
+    createdAt: typeof payload.createdAt === 'string' ? payload.createdAt : now,
   };
+}
+
+function isWorkspaceEmpty(data: WorkspaceData) {
+  return collectionNames.every((collectionName) => data[collectionName].length === 0);
 }
 
 export function useWorkspaceData(user: User | null) {
@@ -67,7 +71,7 @@ export function useWorkspaceData(user: User | null) {
         next[collectionName] = snap.docs.map((item) => item.data()) as never;
       }
 
-      if (next.projects.length === 0) {
+      if (isWorkspaceEmpty(next)) {
         const mock = buildMockData(uid);
         const batch = writeBatch(db);
         for (const collectionName of collectionNames) {
@@ -113,17 +117,22 @@ export function useWorkspaceData(user: User | null) {
     [refresh, uid],
   );
 
-  const resetWithMockData = useCallback(async () => {
+  const seedSampleData = useCallback(async () => {
     if (!uid || !db) return;
     const mock = buildMockData(uid);
     const batch = writeBatch(db);
+
     for (const collectionName of collectionNames) {
       const snap = await getDocs(collection(db, getCollectionPath(uid, collectionName)));
-      snap.docs.forEach((item) => batch.delete(item.ref));
+      const existingIds = new Set(snap.docs.map((item) => item.id));
+
       for (const item of mock[collectionName]) {
-        batch.set(doc(db, getCollectionPath(uid, collectionName), item.id), item);
+        if (!existingIds.has(item.id)) {
+          batch.set(doc(db, getCollectionPath(uid, collectionName), item.id), item);
+        }
       }
     }
+
     await batch.commit();
     await refresh();
   }, [refresh, uid]);
@@ -160,7 +169,7 @@ export function useWorkspaceData(user: User | null) {
     refresh,
     saveItem,
     deleteItem,
-    resetWithMockData,
+    seedSampleData,
     importData,
     lookups,
   };

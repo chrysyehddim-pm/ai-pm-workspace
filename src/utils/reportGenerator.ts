@@ -1,4 +1,5 @@
 import type { ReportType, WorkspaceData } from '../types';
+import { getProjectSummary } from './projectMetrics';
 
 function bullet(items: string[]) {
   if (items.length === 0) return '- 暫無';
@@ -21,7 +22,10 @@ export function generateReport(type: ReportType, data: WorkspaceData) {
   }
 
   if (type === '月報') {
-    return `【AI PM Workspace 月報草稿】\n日期：${today}\n\n一、本月專案概況\n${bullet(data.projects.map((project) => `${project.name}｜${project.status}｜${project.goal}`))}\n\n二、主要成果\n${bullet(doneTasks.slice(0, 10).map((task) => task.title))}\n\n三、主要需協調事項\n${bullet(coordinationTasks.slice(0, 10).map((task) => `${task.title}｜${task.assignee || '未填負責人'}`))}\n\n四、重要決策紀錄\n${bullet(recentDecisions.map((decision) => `${decision.date}｜${decision.decisionMaker}：${decision.content}`))}\n\n五、下月重點\n${bullet(activeTasks.slice(0, 10).map((task) => `${task.title}｜${task.status}`))}`;
+    return `【AI PM Workspace 月報草稿】\n日期：${today}\n\n一、本月專案概況\n${bullet(data.projects.map((project) => {
+      const summary = getProjectSummary(data, project.id);
+      return `${project.name}｜${summary.status}｜${summary.completion.completed}/${summary.completion.total} 完成（${summary.completion.percent}%）｜${project.goal}`;
+    }))}\n\n二、主要成果\n${bullet(doneTasks.slice(0, 10).map((task) => task.title))}\n\n三、主要需協調事項\n${bullet(coordinationTasks.slice(0, 10).map((task) => `${task.title}｜${task.assignee || '未填負責人'}`))}\n\n四、重要決策紀錄\n${bullet(recentDecisions.map((decision) => `${decision.date}｜${decision.decisionMaker}：${decision.content}`))}\n\n五、下月重點\n${bullet(activeTasks.slice(0, 10).map((task) => `${task.title}｜${task.status}`))}`;
   }
 
   if (type === '會議摘要') {

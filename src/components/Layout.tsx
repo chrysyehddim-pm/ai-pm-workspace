@@ -24,7 +24,7 @@ export function Layout({
   onLogout,
   onExport,
   onImportClick,
-  onResetMock,
+  onSeedSampleData,
 }: {
   children: ReactNode;
   currentPage: PageKey;
@@ -34,7 +34,7 @@ export function Layout({
   onLogout: () => void;
   onExport: () => void;
   onImportClick: () => void;
-  onResetMock: () => void;
+  onSeedSampleData: () => void;
 }) {
   const activeTasks = data.tasks.filter((task) => task.status !== '完成').length;
   const needAttention = countNeedAttention(data);
@@ -68,7 +68,7 @@ export function Layout({
           <div className="mt-3 grid grid-cols-2 gap-2">
             <button className="btn-secondary px-2 py-2 text-xs" onClick={onExport}>匯出</button>
             <button className="btn-secondary px-2 py-2 text-xs" onClick={onImportClick}>匯入</button>
-            <button className="btn-secondary col-span-2 px-2 py-2 text-xs" onClick={onResetMock}>重置範例資料</button>
+            <button className="btn-secondary col-span-2 px-2 py-2 text-xs" onClick={onSeedSampleData}>補上範例資料</button>
             <button className="btn-secondary col-span-2 px-2 py-2 text-xs" onClick={onLogout}>登出</button>
           </div>
         </div>
@@ -114,7 +114,7 @@ export function Layout({
           .map((item) => (
             <button
               key={item.key}
-              className={`py-3 text-xs font-medium ${currentPage === item.key ? 'text-slate-950' : 'text-slate-500'}`}
+              className={`py-3 text-xs font-medium ${currentPage === item.key ? 'text-slate-950' : 'text-slate-400'}`}
               onClick={() => setCurrentPage(item.key)}
             >
               {item.short}

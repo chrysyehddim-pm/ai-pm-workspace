@@ -16,7 +16,7 @@ function App() {
   const [currentPage, setCurrentPage] = useState<PageKey>('dashboard');
   const importInputRef = useRef<HTMLInputElement | null>(null);
   const { user, authLoading, authError, loginWithGoogle, loginAnonymously, logout } = useAuth();
-  const { data, loading, error, saveItem, deleteItem, resetWithMockData, importData } = useWorkspaceData(user);
+  const { data, loading, error, saveItem, deleteItem, seedSampleData, importData } = useWorkspaceData(user);
 
   const exportData = () => {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -28,9 +28,26 @@ function App() {
     URL.revokeObjectURL(url);
   };
 
+  const confirmDeleteItem = async (collectionName: CollectionName, id: string) => {
+    const ok = window.confirm('確定要刪除這筆資料嗎？此操作無法復原。');
+    if (!ok) return;
+    await deleteItem(collectionName, id);
+  };
+
+  const handleSeedSampleData = async () => {
+    const ok = window.confirm('此操作只會補上缺少的範例資料，不會刪除你已建立的資料。是否繼續？');
+    if (!ok) return;
+    await seedSampleData();
+  };
+
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+    const ok = window.confirm('匯入資料會清空目前帳號底下的既有資料，並改用匯入檔案內容。是否繼續？');
+    if (!ok) {
+      event.target.value = '';
+      return;
+    }
     const text = await file.text();
     const parsed = JSON.parse(text) as WorkspaceData;
     await importData(parsed);
@@ -45,15 +62,15 @@ function App() {
       case 'dashboard':
         return <Dashboard data={data} />;
       case 'projects':
-        return <Projects data={data} saveItem={saveItem} deleteItem={deleteItem} />;
+        return <Projects data={data} saveItem={saveItem} deleteItem={confirmDeleteItem} />;
       case 'tasks':
-        return <TaskCenter data={data} saveItem={saveItem} deleteItem={deleteItem} />;
+        return <TaskCenter data={data} saveItem={saveItem} deleteItem={confirmDeleteItem} />;
       case 'decisions':
-        return <DecisionLog data={data} saveItem={saveItem} deleteItem={deleteItem} />;
+        return <DecisionLog data={data} saveItem={saveItem} deleteItem={confirmDeleteItem} />;
       case 'meetings':
-        return <MeetingNotes data={data} saveItem={saveItem} deleteItem={deleteItem} />;
+        return <MeetingNotes data={data} saveItem={saveItem} deleteItem={confirmDeleteItem} />;
       case 'documents':
-        return <DocumentIndex data={data} saveItem={saveItem} deleteItem={deleteItem} />;
+        return <DocumentIndex data={data} saveItem={saveItem} deleteItem={confirmDeleteItem} />;
       case 'reports':
         return <Reports data={data} />;
       default:
@@ -78,7 +95,7 @@ function App() {
         onLogout={logout}
         onExport={exportData}
         onImportClick={() => importInputRef.current?.click()}
-        onResetMock={resetWithMockData}
+        onSeedSampleData={handleSeedSampleData}
       >
         {renderPage()}
       </Layout>
