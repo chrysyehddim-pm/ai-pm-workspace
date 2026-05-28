@@ -50,10 +50,11 @@ export function TaskForm({
       await onSave({
         id: initialTask?.id,
         title: String(formData.get('title') || ''),
+        summary: String(formData.get('summary') || ''),
         description: String(formData.get('description') || ''),
         projectId,
-        epicId,
-        storyId,
+        epicId: epicId || undefined,
+        storyId: storyId || undefined,
         assignee: String(formData.get('assignee') || ''),
         department: String(formData.get('department') || ''),
         status: String(formData.get('status')) as TaskStatus,
@@ -71,7 +72,7 @@ export function TaskForm({
   return (
     <form className="card space-y-4" onSubmit={handleSubmit}>
       <div className="rounded-2xl bg-slate-50 p-3 text-sm leading-6 text-slate-600">
-        Task 是最小追蹤單位，Project 必填；Epic / Story 可先留空，之後再補齊歸類。
+        Task 是最小追蹤單位，Project 必填；Epic / Story 可先留空，之後再補齊歸類。任務描述與歷程紀錄可先用 Markdown 純文字書寫。
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -131,8 +132,12 @@ export function TaskForm({
         </label>
       </div>
       <label>
-        <span className="label">任務描述</span>
-        <textarea name="description" className="input min-h-20" defaultValue={initialTask?.description} />
+        <span className="label">任務摘要</span>
+        <input name="summary" className="input" defaultValue={initialTask?.summary} placeholder="列表顯示用，建議 40–80 字。未填則自動取描述前段。" />
+      </label>
+      <label>
+        <span className="label">任務描述（Markdown-ready）</span>
+        <textarea name="description" className="input min-h-28" defaultValue={initialTask?.description} placeholder="可用條列、待辦清單或簡單 Markdown 純文字記錄背景與驗收條件。" />
       </label>
       <label>
         <span className="label">備註</span>

@@ -39,13 +39,14 @@ function getCollectionPath(uid: string, collectionName: CollectionName) {
 
 function withAudit<T extends { id?: string; createdAt?: string }>(payload: T, uid: string) {
   const now = new Date().toISOString();
+  const id = payload.id || crypto.randomUUID();
   return {
     ...payload,
-    id: payload.id || crypto.randomUUID(),
+    id,
     ownerUid: uid,
     workspaceId: DEFAULT_WORKSPACE_ID,
     updatedAt: now,
-    createdAt: typeof payload.createdAt === 'string' ? payload.createdAt : now,
+    ...(typeof payload.createdAt === 'string' ? { createdAt: payload.createdAt } : payload.id ? {} : { createdAt: now }),
   };
 }
 

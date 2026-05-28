@@ -30,6 +30,7 @@ export type ProjectStatus =
 export type SourceType = 'Meeting' | 'Teams' | 'Email' | 'Line' | 'Personal Note' | 'Other';
 export type DocumentType = 'PPT' | 'Excel' | 'Word' | 'PDF' | 'Image' | 'Link' | 'Other';
 export type ReportType = '週報' | '月報' | '會議摘要' | '主管摘要';
+export type TaskHistoryType = '討論' | '修改' | '追蹤' | '決策' | '備註';
 
 export interface BaseEntity {
   id: string;
@@ -65,11 +66,20 @@ export interface Story extends BaseEntity {
   value?: string;
 }
 
+export interface TaskHistory {
+  id: string;
+  type: TaskHistoryType;
+  content: string;
+  createdAt: string;
+  createdBy?: string;
+}
+
 export interface Task extends BaseEntity {
   projectId: string;
   epicId?: string;
   storyId?: string;
   title: string;
+  summary?: string;
   description?: string;
   assignee?: string;
   department?: string;
@@ -79,6 +89,7 @@ export interface Task extends BaseEntity {
   dueDate?: string;
   source: SourceType;
   notes?: string;
+  history?: TaskHistory[];
 }
 
 export interface Decision extends BaseEntity {

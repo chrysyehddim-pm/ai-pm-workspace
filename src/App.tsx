@@ -14,9 +14,19 @@ import { useWorkspaceData } from './hooks/useWorkspaceData';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<PageKey>('dashboard');
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [selectedDecisionId, setSelectedDecisionId] = useState<string | null>(null);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const importInputRef = useRef<HTMLInputElement | null>(null);
   const { user, authLoading, authError, loginWithGoogle, loginAnonymously, logout } = useAuth();
   const { data, loading, error, saveItem, deleteItem, seedSampleData, importData } = useWorkspaceData(user);
+
+  const goToPage = (page: PageKey) => {
+    setCurrentPage(page);
+    if (page !== 'tasks') setSelectedTaskId(null);
+    if (page !== 'decisions') setSelectedDecisionId(null);
+    if (page !== 'projects') setSelectedProjectId(null);
+  };
 
   const exportData = () => {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -60,13 +70,29 @@ function App() {
 
     switch (currentPage) {
       case 'dashboard':
-        return <Dashboard data={data} />;
+        return (
+          <Dashboard
+            data={data}
+            onOpenTask={(taskId) => {
+              setSelectedTaskId(taskId);
+              setCurrentPage('tasks');
+            }}
+            onOpenDecision={(decisionId) => {
+              setSelectedDecisionId(decisionId);
+              setCurrentPage('decisions');
+            }}
+            onOpenProject={(projectId) => {
+              setSelectedProjectId(projectId);
+              setCurrentPage('projects');
+            }}
+          />
+        );
       case 'projects':
-        return <Projects data={data} saveItem={saveItem} deleteItem={confirmDeleteItem} />;
+        return <Projects data={data} saveItem={saveItem} deleteItem={confirmDeleteItem} selectedProjectId={selectedProjectId} onClearSelectedProject={() => setSelectedProjectId(null)} />;
       case 'tasks':
-        return <TaskCenter data={data} saveItem={saveItem} deleteItem={confirmDeleteItem} />;
+        return <TaskCenter data={data} saveItem={saveItem} deleteItem={confirmDeleteItem} selectedTaskId={selectedTaskId} onClearSelectedTask={() => setSelectedTaskId(null)} />;
       case 'decisions':
-        return <DecisionLog data={data} saveItem={saveItem} deleteItem={confirmDeleteItem} />;
+        return <DecisionLog data={data} saveItem={saveItem} deleteItem={confirmDeleteItem} selectedDecisionId={selectedDecisionId} onClearSelectedDecision={() => setSelectedDecisionId(null)} />;
       case 'meetings':
         return <MeetingNotes data={data} saveItem={saveItem} deleteItem={confirmDeleteItem} />;
       case 'documents':
@@ -89,7 +115,7 @@ function App() {
       <input ref={importInputRef} type="file" accept="application/json" className="hidden" onChange={handleImport} />
       <Layout
         currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
+        setCurrentPage={goToPage}
         data={data}
         userEmail={user?.email || user?.uid || 'Anonymous'}
         onLogout={logout}

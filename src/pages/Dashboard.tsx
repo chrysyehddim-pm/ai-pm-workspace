@@ -4,7 +4,17 @@ import type { WorkspaceData } from '../types';
 import { isWithinDays } from '../utils/date';
 import { getProjectSummary } from '../utils/projectMetrics';
 
-export function Dashboard({ data }: { data: WorkspaceData }) {
+export function Dashboard({
+  data,
+  onOpenTask,
+  onOpenDecision,
+  onOpenProject,
+}: {
+  data: WorkspaceData;
+  onOpenTask?: (taskId: string) => void;
+  onOpenDecision?: (decisionId: string) => void;
+  onOpenProject?: (projectId: string) => void;
+}) {
   const unfinished = data.tasks.filter((task) => task.status !== '完成');
   const weeklyFollowUps = unfinished.filter((task) => task.tags.includes('待追蹤') || isWithinDays(task.dueDate, 7));
   const coordination = unfinished.filter((task) => task.tags.includes('需協調'));
@@ -16,7 +26,7 @@ export function Dashboard({ data }: { data: WorkspaceData }) {
       <div>
         <p className="text-sm font-medium text-slate-500">首頁總覽</p>
         <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">本週專案工作台</h2>
-        <p className="mt-2 text-slate-500">快速掌握待追、需協調、待確認與最近決策。</p>
+        <p className="mt-2 text-slate-500">快速掌握待追、需協調、待確認與最近決策。點擊項目可直接進入詳情。</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -35,7 +45,7 @@ export function Dashboard({ data }: { data: WorkspaceData }) {
           <div className="mt-4 space-y-3">
             {weeklyFollowUps.length === 0 && <p className="muted">目前沒有本週待追任務。</p>}
             {weeklyFollowUps.slice(0, 6).map((task) => (
-              <div key={task.id} className="rounded-2xl border border-slate-100 p-4">
+              <button key={task.id} className="w-full rounded-2xl border border-slate-100 p-4 text-left transition hover:border-slate-300 hover:bg-slate-50" onClick={() => onOpenTask?.(task.id)}>
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <p className="font-medium text-slate-950">{task.title}</p>
@@ -46,7 +56,7 @@ export function Dashboard({ data }: { data: WorkspaceData }) {
                 <div className="mt-3 flex flex-wrap gap-2">
                   {task.tags.map((tag) => <TagBadge key={tag} tag={tag} />)}
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </section>
@@ -56,10 +66,10 @@ export function Dashboard({ data }: { data: WorkspaceData }) {
           <div className="mt-4 space-y-3">
             {recentDecisions.length === 0 && <p className="muted">目前尚無決策紀錄。</p>}
             {recentDecisions.map((decision) => (
-              <div key={decision.id} className="rounded-2xl bg-slate-50 p-3">
+              <button key={decision.id} className="w-full rounded-2xl bg-slate-50 p-3 text-left transition hover:bg-slate-100" onClick={() => onOpenDecision?.(decision.id)}>
                 <p className="text-xs text-slate-500">{decision.date}・{decision.decisionMaker}</p>
                 <p className="mt-1 text-sm font-medium leading-6 text-slate-800">{decision.content}</p>
-              </div>
+              </button>
             ))}
           </div>
         </section>
@@ -71,13 +81,13 @@ export function Dashboard({ data }: { data: WorkspaceData }) {
           <div className="mt-4 space-y-3">
             {coordination.length === 0 && <p className="muted">目前沒有需協調事項。</p>}
             {coordination.slice(0, 5).map((task) => (
-              <div key={task.id} className="flex items-start justify-between gap-3 rounded-2xl bg-purple-50 p-3">
+              <button key={task.id} className="flex w-full items-start justify-between gap-3 rounded-2xl bg-purple-50 p-3 text-left transition hover:bg-purple-100" onClick={() => onOpenTask?.(task.id)}>
                 <div>
                   <p className="text-sm font-medium text-purple-950">{task.title}</p>
                   <p className="mt-1 text-xs text-purple-700">{task.assignee || '未填負責人'}・{task.department || '未填單位'}</p>
                 </div>
                 <StatusBadge status={task.status} />
-              </div>
+              </button>
             ))}
           </div>
         </section>
@@ -88,7 +98,7 @@ export function Dashboard({ data }: { data: WorkspaceData }) {
             {data.projects.map((project) => {
               const summary = getProjectSummary(data, project.id);
               return (
-                <div key={project.id} className="rounded-2xl border border-slate-100 p-4">
+                <button key={project.id} className="w-full rounded-2xl border border-slate-100 p-4 text-left transition hover:border-slate-300 hover:bg-slate-50" onClick={() => onOpenProject?.(project.id)}>
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="font-medium text-slate-950">{project.name}</p>
@@ -101,7 +111,7 @@ export function Dashboard({ data }: { data: WorkspaceData }) {
                     </div>
                     <StatusBadge status={summary.status} />
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>

@@ -1,36 +1,36 @@
-# AI PM Workspace v0.1.2 Patch
+# AI PM Workspace v0.1.3 Patch
 
-本次修正重點：
+本 patch 聚焦「任務中心工作流優化 + Markdown-ready 資料結構」。
 
-1. 補齊可編輯能力
-   - Project 可編輯基本資料
-   - Epic 可編輯
-   - Story 可編輯
-   - Decision Log 可編輯
-   - Meeting Notes 可編輯
-   - Document Index 可編輯
+## 覆蓋檔案
 
-2. 介面命名一致化
-   - 側邊欄改為繁體中文
-   - 頁面標題統一繁體中文
-   - 保留 AI PM Workspace 作為產品名稱
+請依照相同路徑覆蓋 GitHub repo 內檔案：
 
-3. Report 邏輯說明
-   - 報告中心明確說明是「即時草稿產生器」
-   - 不會每日自動生成
-   - 不會自動保存歷史版本
-   - 若需保存版本，請複製後另存
+- `src/App.tsx`
+- `src/types.ts`
+- `src/hooks/useWorkspaceData.ts`
+- `src/components/TaskForm.tsx`
+- `src/pages/TaskCenter.tsx`
+- `src/pages/Dashboard.tsx`
+- `src/pages/DecisionLog.tsx`
+- `src/pages/Projects.tsx`
 
-4. 輕量 UI/UX 優化
-   - 側邊欄加入簡單 icon 識別
-   - 手機底部導覽加入 icon
-   - 編輯 / 刪除操作改為更明確的按鈕樣式
-   - 空資料狀態增加提示
+## 本次修正重點
 
-使用方式：
-請將 zip 內檔案依照相同路徑覆蓋到 GitHub repo。
-例如：
-- src/pages/Projects.tsx 覆蓋 repo 中的 src/pages/Projects.tsx
-- src/components/Layout.tsx 覆蓋 repo 中的 src/components/Layout.tsx
+1. 任務中心列表簡潔化：列表只顯示任務標題、摘要、專案、負責人、狀態、標籤與日期。
+2. 任務狀態可在列表直接切換，不必進入編輯頁。
+3. 任務詳情獨立化：點擊任務後進入詳情，不再在編輯區下方顯示其他任務列表。
+4. 任務詳情新增「歷程紀錄」，可記錄討論、修改、追蹤、決策、備註，並自動加日期戳記。
+5. 任務描述與歷程紀錄欄位採 Markdown-ready 純文字設計，後續可升級 Markdown 預覽。
+6. 首頁總覽的任務與決策可點擊進入對應詳情。
+7. 修正 `saveItem` 在局部更新時覆蓋 createdAt 的問題。
+8. 專案概況卡片可從首頁進入專案管理頁並選中該專案。
 
-覆蓋後 commit，GitHub Actions 會自動部署。
+## 驗收建議
+
+- 在任務中心直接切換任務狀態，確認 Firestore 有保存。
+- 點任務進入詳情，確認下方不再顯示其他任務列表。
+- 新增一筆任務歷程紀錄，重新整理後確認資料仍存在。
+- 從首頁點「本週待追 / 需協調事項」任務，確認能進入該任務詳情。
+- 從首頁點「最近決策」，確認能進入該決策詳情。
+- GitHub Actions 應可成功 build。

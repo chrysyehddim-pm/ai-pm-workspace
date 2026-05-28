@@ -1,22 +1,35 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Decision, WorkspaceData } from '../types';
 
 export function DecisionLog({
   data,
   saveItem,
   deleteItem,
+  selectedDecisionId,
+  onClearSelectedDecision,
 }: {
   data: WorkspaceData;
   saveItem: (collectionName: 'decisions', payload: Partial<Decision>) => Promise<string>;
   deleteItem: (collectionName: 'decisions', id: string) => Promise<void>;
+  selectedDecisionId?: string | null;
+  onClearSelectedDecision?: () => void;
 }) {
   const [editingDecision, setEditingDecision] = useState<Decision | null>(null);
+  const [viewingDecisionId, setViewingDecisionId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (selectedDecisionId) {
+      setViewingDecisionId(selectedDecisionId);
+      setEditingDecision(null);
+      onClearSelectedDecision?.();
+    }
+  }, [selectedDecisionId, onClearSelectedDecision]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = event.currentTarget;
     const formData = new FormData(form);
-    await saveItem('decisions', {
+    const id = await saveItem('decisions', {
       ...(editingDecision || {}),
       projectId: String(formData.get('projectId') || ''),
       date: String(formData.get('date') || ''),
@@ -27,18 +40,57 @@ export function DecisionLog({
       source: String(formData.get('source')) as Decision['source'],
     });
     setEditingDecision(null);
+    setViewingDecisionId(id);
     form.reset();
   };
 
   const projectName = (id: string) => data.projects.find((project) => project.id === id)?.name || '未指定專案';
   const decisions = [...data.decisions].sort((a, b) => b.date.localeCompare(a.date));
+  const viewingDecision = viewingDecisionId ? data.decisions.find((decision) => decision.id === viewingDecisionId) : null;
+
+  if (viewingDecision) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <button className="text-sm font-medium text-slate-500 hover:text-slate-900" onClick={() => setViewingDecisionId(null)}>← 返回決策列表</button>
+            <p className="mt-4 text-sm font-medium text-slate-500">決策紀錄</p>
+            <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">決策詳情</h2>
+            <p className="mt-2 text-slate-500">查看單一決策的背景、影響與來源。</p>
+          </div>
+          <div className="flex gap-2">
+            <button className="btn-secondary" onClick={() => {
+              setEditingDecision(viewingDecision);
+              setViewingDecisionId(null);
+            }}>編輯</button>
+            <button className="btn-secondary text-rose-600" onClick={async () => {
+              await deleteItem('decisions', viewingDecision.id);
+              setViewingDecisionId(null);
+            }}>刪除</button>
+          </div>
+        </div>
+
+        <section className="card space-y-4">
+          <div>
+            <p className="text-xs font-medium text-slate-500">{viewingDecision.date}・{viewingDecision.decisionMaker}・{viewingDecision.source}</p>
+            <h3 className="mt-3 text-2xl font-semibold leading-8 text-slate-950">{viewingDecision.content}</h3>
+            <p className="mt-3 text-sm text-slate-500">Project：{projectName(viewingDecision.projectId)}</p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <Info title="背景原因" content={viewingDecision.context} />
+            <Info title="影響範圍" content={viewingDecision.impact} />
+          </div>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <div>
         <p className="text-sm font-medium text-slate-500">決策紀錄</p>
         <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">決策紀錄</h2>
-        <p className="mt-2 text-slate-500">記錄誰在何時決定了什麼，以及影響哪些事項。決策內容可以持續補充背景與影響範圍。</p>
+        <p className="mt-2 text-slate-500">記錄誰在何時決定了什麼，以及影響哪些事項。點擊決策可查看詳情。</p>
       </div>
 
       <DecisionForm
@@ -54,11 +106,11 @@ export function DecisionLog({
         {decisions.map((decision) => (
           <div key={decision.id} className="card">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
+              <button className="flex-1 text-left" onClick={() => setViewingDecisionId(decision.id)}>
                 <p className="text-xs font-medium text-slate-500">{decision.date}・{decision.decisionMaker}・{decision.source}</p>
                 <h3 className="mt-2 text-lg font-semibold text-slate-950">{decision.content}</h3>
                 <p className="mt-2 text-sm text-slate-500">Project：{projectName(decision.projectId)}</p>
-              </div>
+              </button>
               <div className="flex gap-2">
                 <button className="btn-secondary" onClick={() => setEditingDecision(decision)}>編輯</button>
                 <button className="btn-secondary text-rose-600" onClick={() => deleteItem('decisions', decision.id)}>刪除</button>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StatusBadge } from '../components/StatusBadge';
 import type { Epic, Project, Story, WorkspaceData } from '../types';
 import { getEpicSummary, getProjectSummary, getStorySummary } from '../utils/projectMetrics';
@@ -7,16 +7,27 @@ export function Projects({
   data,
   saveItem,
   deleteItem,
+  selectedProjectId: externalSelectedProjectId,
+  onClearSelectedProject,
 }: {
   data: WorkspaceData;
   saveItem: (collectionName: 'projects' | 'epics' | 'stories', payload: Partial<Project | Epic | Story>) => Promise<string>;
   deleteItem: (collectionName: 'projects' | 'epics' | 'stories', id: string) => Promise<void>;
+  selectedProjectId?: string | null;
+  onClearSelectedProject?: () => void;
 }) {
   const [selectedProjectId, setSelectedProjectId] = useState(data.projects[0]?.id || '');
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [editingEpic, setEditingEpic] = useState<Epic | null>(null);
   const [editingStory, setEditingStory] = useState<Story | null>(null);
 
+
+  useEffect(() => {
+    if (externalSelectedProjectId) {
+      setSelectedProjectId(externalSelectedProjectId);
+      onClearSelectedProject?.();
+    }
+  }, [externalSelectedProjectId, onClearSelectedProject]);
   const selectedProject = data.projects.find((project) => project.id === selectedProjectId) || data.projects[0];
   const epics = data.epics.filter((epic) => epic.projectId === selectedProject?.id);
   const selectedProjectSummary = selectedProject ? getProjectSummary(data, selectedProject.id) : null;
