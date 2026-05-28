@@ -1,192 +1,116 @@
-# AI PM Workspace
+# LocalSnap Tools
 
-AI PM Workspace 是一套給個人 PM 使用的專案任務追蹤工作台，協助整理多專案、多工作流、多任務、多決策紀錄、會議紀錄與文件索引。
+> v1.0.3：移除 package-lock.json，避免 Vercel 讀到非公開 npm registry 造成安裝失敗。
 
-此版本不是公司級專案管理系統，也不是 Jira / Shortcut / Height 的替代品。v0.1 聚焦在個人 PM 的任務追蹤、決策沉澱與回報整理。
+LocalSnap Tools 是一個 **純前端、本機瀏覽器處理** 的私人檔案工具箱。你可以把專案放到 GitHub，再部署到 Vercel 或 GitHub Pages；使用時檔案只在瀏覽器本機讀取與處理，不上傳、不存雲端、不需要登入。
 
----
+## 目前功能
 
-## v0.1 Scope
+### 1. PDF 工具
+- PDF 安全優化：保留文字可選取性，重新封裝 PDF 並移除部分中繼資料。
+- PDF 圖片化高壓縮：將 PDF 頁面渲染為圖片後重建 PDF，壓縮效果較明顯，但文字會變成圖片。
+- 多 PDF 合併。
 
-### Included
+> PDF 壓縮效果會受原始 PDF 影響。若原檔已高度壓縮，安全優化可能只會小幅縮小。
 
-- React + TypeScript + Vite
-- Tailwind CSS RWD layout
-- Firebase Authentication
-- Cloud Firestore
-- 個人資料隔離 Security Rules
-- Project / Epic / Story / Task
-- Task Center
-- Decision Log
-- Meeting Notes
-- Document Index
-- Report Generator
-- JSON backup export / import
+### 2. 圖片工具
+- JPG / PNG / WebP 壓縮。
+- JPG / PNG / WebP 格式轉換。
+- 自訂寬高、等比例縮放。
+- 常用尺寸：16:9、1:1、4:3、縮圖。
+- 批次處理與 ZIP 下載。
+- 自訂輸出檔名前綴。
 
-### Not Included
+### 3. PPTX 壓縮
+- 讀取 `.pptx` 內的圖片檔。
+- 依最大邊長縮小圖片。
+- 重新壓縮 JPEG / WebP / PNG 圖片。
+- 保留 PPTX 結構，另存新檔。
 
-- 檔案上傳
-- AI API 串接
-- 多人協作
-- 權限分享
-- Teams / Email 串接
-- 甘特圖
+> 目前支援 `.pptx`，不支援舊版 `.ppt`。壓縮後請打開檢查版面。
 
----
+### 4. 純色背景去背
+- 將 JPG / PNG / WebP 的純色背景轉為透明。
+- 輸出透明 PNG。
+- 適合白底商品圖、icon、截圖素材。
 
-## Core Structure
+> 這不是 AI 去背。複雜背景、髮絲、陰影、透明物件效果有限。
 
-```text
-Workspace
-└── Project
-    └── Epic
-        └── Story
-            └── Task
-```
+## 隱私設計
 
----
+本專案刻意不建立後端檔案處理流程：
 
-## Firebase Data Path
+- 不建立資料庫。
+- 不建立檔案上傳 API。
+- 不使用雲端儲存。
+- 不需要帳號登入。
+- 不預設加入 Google Analytics 或第三方追蹤碼。
+- 檔案透過瀏覽器 File API 讀取，處理後用 Blob 產生下載檔。
 
-```text
-users/{uid}/workspaces/default/projects/{projectId}
-users/{uid}/workspaces/default/epics/{epicId}
-users/{uid}/workspaces/default/stories/{storyId}
-users/{uid}/workspaces/default/tasks/{taskId}
-users/{uid}/workspaces/default/decisions/{decisionId}
-users/{uid}/workspaces/default/meetings/{meetingId}
-users/{uid}/workspaces/default/documents/{documentId}
-```
+你可以用瀏覽器 DevTools 的 Network 面板確認：處理檔案時不應出現檔案上傳請求。
 
-Firestore rules are defined in `firestore.rules`.
+## 本機執行
 
----
-
-## Setup
-
-### 1. Create Firebase Project
-
-In Firebase Console:
-
-1. Create a Firebase project.
-2. Add a Web App.
-3. Enable Authentication.
-4. Enable Google Sign-In and/or Anonymous Sign-In.
-5. Create Cloud Firestore.
-6. Enable Firebase Hosting if you want to deploy through Firebase.
-
-### 2. Environment Variables
-
-Copy `.env.example` to `.env.local` for local development:
-
-```bash
-cp .env.example .env.local
-```
-
-Fill in your Firebase Web App config:
-
-```env
-VITE_FIREBASE_API_KEY=your_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
-```
-
-If you are using GitHub Actions, set the same values as repository secrets.
-
-### 3. Install
+請先安裝 Node.js 18 以上版本。
 
 ```bash
 npm install
-```
-
-### 4. Run Locally
-
-```bash
 npm run dev
 ```
 
-### 5. Build
+開啟：
+
+```text
+http://localhost:3000
+```
+
+## 建置靜態網站
 
 ```bash
 npm run build
 ```
 
----
+此專案已在 `next.config.mjs` 設定：
 
-## GitHub.dev Workflow
-
-If your company computer cannot install Node.js or VS Code, you can still edit files using GitHub's web editor:
-
-1. Upload this project to a GitHub repository.
-2. Press `.` inside the repo page, or open `https://github.dev/{owner}/{repo}`.
-3. Edit files in the browser.
-4. Commit changes.
-5. Let GitHub Actions build and deploy, or deploy from a personal computer.
-
----
-
-## Firebase Hosting with GitHub Actions
-
-This repo includes an example workflow file:
-
-```text
-.github/workflows/firebase-hosting.yml.example
+```js
+output: 'export'
 ```
 
-After setting GitHub repository secrets, rename it to:
+Build 後會產出 `out/` 資料夾，可部署到支援靜態網站的服務。
 
-```text
-.github/workflows/firebase-hosting.yml
-```
+## 部署到 Vercel
 
-Required secrets:
+建議流程：
 
-- `FIREBASE_SERVICE_ACCOUNT`
-- `VITE_FIREBASE_API_KEY`
-- `VITE_FIREBASE_AUTH_DOMAIN`
-- `VITE_FIREBASE_PROJECT_ID`
-- `VITE_FIREBASE_STORAGE_BUCKET`
-- `VITE_FIREBASE_MESSAGING_SENDER_ID`
-- `VITE_FIREBASE_APP_ID`
+1. 建立 GitHub repository。
+2. 將本專案所有檔案上傳到 GitHub。
+3. 到 Vercel 建立新專案。
+4. 連接 GitHub repository。
+5. Framework Preset 選 Next.js。
+6. Build Command 使用預設 `next build`。
+7. 部署完成後取得網址。
 
----
+## 部署到 GitHub Pages
 
-## Security Notes
+因為本專案是靜態輸出，也可部署到 GitHub Pages。你可以使用 GitHub Actions 將 `out/` 資料夾發布到 Pages。
 
-- Do not upload company confidential documents to this app.
-- v0.1 only stores document indexes, not actual files.
-- Firebase API config is not the main security layer; Firestore Security Rules are.
-- Current rules allow each authenticated user to read/write only their own `/users/{uid}` data.
+如果你想先降低操作複雜度，建議第一版先用 Vercel。
 
----
+## 建議驗收方式
 
-## Development Roadmap
+部署完成後，請做以下測試：
 
-### v0.1
+1. 開啟 DevTools → Network。
+2. 選擇一張圖片並壓縮。
+3. 確認 Network 沒有出現檔案上傳 request。
+4. 下載輸出檔，確認可正常開啟。
+5. 測試 PDF、PPTX 後也同樣檢查 Network。
 
-- Cloud MVP
-- Personal login
-- Firestore sync
-- Core PM workspace modules
+## 後續可擴充
 
-### v0.2
+- PWA 離線模式。
+- MP3 / MP4 壓縮與裁切。
+- AI 本機去背模型。
+- PDF 拆分、刪頁、圖片轉 PDF。
+- 工具使用紀錄只存在 localStorage，不同步雲端。
 
-- Better search and filters
-- Markdown export
-- Mobile quick-add improvements
-- Better report templates
-
-### v0.3
-
-- AI prompt templates
-- Meeting notes to task prompt
-- Manual AI-assisted workflow
-
-### v1.0
-
-- Consider AI API integration
-- Consider limited collaboration
-- Consider attachment support only after security review

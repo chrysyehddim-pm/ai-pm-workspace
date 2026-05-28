@@ -1,0 +1,20 @@
+LocalSnap Tools v1.0.3 上傳檢查清單
+
+1. GitHub repo 第一層必須看到：
+   - app/
+   - package.json
+   - next.config.mjs
+   - tsconfig.json
+   - README.md
+   - .npmrc
+
+2. GitHub repo 第一層不應該看到：
+   - package-lock.json
+   - node_modules/
+   - globals.css
+   - layout.tsx
+   - page.tsx
+
+3. globals.css、layout.tsx、page.tsx 必須在 app/ 裡。
+
+4. 若 Vercel 還是 npm install 失敗，請確認 GitHub repo 裡沒有舊的 package-lock.json。
