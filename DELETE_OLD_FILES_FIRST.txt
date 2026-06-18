@@ -1,0 +1,8 @@
+請在 GitHub repo 裡刪除這些舊 Next.js / LocalSnap 殘留檔案與資料夾，避免之後混淆：
+
+app/
+next-env.d.ts
+next.config.mjs
+package-lock.json（如果它是舊 Next.js 專案產生的，可以刪除；若之後由 AI PM Workspace 重新產生再保留）
+
+如果 GitHub 網頁不方便刪除 app/ 資料夾，可以先不刪；只要 package.json、tsconfig.json、src/、firebase.json 是本包版本，部署仍應走 Vite。
